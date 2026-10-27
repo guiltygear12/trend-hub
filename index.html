@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>트렌드 허브 - 실시간 트렌드 대시보드</title>
+<style>
+  :root {
+    --ink: #12100e;
+    --panel: #1e1a16;
+    --bone: #f3eadb;
+    --brass: #e0b15a;
+    --red: #c45b4a;
+    --muted: #9aa6c4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--brass);
+    padding-bottom: 20px;
+  }
+  h1 {
+    font-size: 2.5em;
+    color: var(--brass);
+    letter-spacing: 2px;
+  }
+  .subtitle { color: var(--muted); font-size: 1.1em; }
+  .updated { margin-top: 10px; font-size: 0.9em; color: var(--brass); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid #2a2520;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .card h2 {
+    color: var(--brass);
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  .trend-item, .video-item, .meme-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #2a2520;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rank { color: var(--red); font-weight: bold; min-width: 30px; }
+  .topic { flex: 1; }
+  .category, .type { color: var(--muted); font-size: 0.85em; }
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 0.9em;
+  }
+  .badge {
+    background: var(--brass);
+    color: var(--ink);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>⚡ 트렌드 허브</h1>
+    <p class="subtitle">X · YouTube · 밈 · 숏폼 한눈에 보기</p>
+    <p class="updated" id="updated">업데이트 중...</p>
+  </header>
+  <div class="grid">
+    <div class="card">
+      <h2>🐦 X (트위터) 트렌드</h2>
+      <div id="xTrends"></div>
+    </div>
+    <div class="card">
+      <h2>📺 YouTube 트렌딩</h2>
+      <div id="youtube"></div>
+    </div>
+    <div class="card">
+      <h2>😂 유행 밈</h2>
+      <div id="memes"></div>
+    </div>
+    <div class="card">
+      <h2>📱 숏폼 / 알고리즘</h2>
+      <div id="shorts"></div>
+    </div>
+  </div>
+  <div class="footer">
+    마이스터 헬레나가 만든 실시간 트렌드 스테이션 · 봇이 주기적으로 갱신해줘!
+  </div>
+  <script>
+    async function loadData() {
+      try {
+        const res = await fetch('data.json');
+        const data = await res.json();
+        document.getElementById('updated').textContent = '마지막 업데이트: ' + new Date(data.lastUpdated).toLocaleString('ko-KR');
+
+        const xDiv = document.getElementById('xTrends');
+        data.xTrends.forEach(item => {
+          xDiv.innerHTML += `<div class="trend-item"><span class="rank">${item.rank}</span><span class="topic">${item.topic}</span><span class="category">${item.category}</span></div>`;
+        });
+
+        const ytDiv = document.getElementById('youtube');
+        data.youtubeTrending.forEach(item => {
+          ytDiv.innerHTML += `<div class="video-item"><div><strong>${item.title}</strong><br><span class="type">${item.channel} · ${item.type}</span></div><span class="badge">${item.views}</span></div>`;
+        });
+
+        const memeDiv = document.getElementById('memes');
+        data.memes.forEach(item => {
+          memeDiv.innerHTML += `<div class="meme-item"><div><strong>${item.name}</strong><br><span class="type">${item.description}</span></div><span class="badge">${item.platform}</span></div>`;
+        });
+
+        const shortsDiv = document.getElementById('shorts');
+        data.shorts.forEach(item => {
+          shortsDiv.innerHTML += `<div class="trend-item"><span class="topic">${item}</span></div>`;
+        });
+      } catch (e) {
+        console.error(e);
+        document.getElementById('updated').textContent = '데이터 로드 실패';
+      }
+    }
+    loadData();
+  </script>
+</body>
+</html>
